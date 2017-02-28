@@ -232,15 +232,18 @@ module GraphQL
               [argument.name, arg]
             end]
 
+            field = GraphQL::Field.define(
+              name: field_definition.name,
+              description: field_definition.description,
+              type: type_resolver.call(field_definition.type),
+              deprecation_reason: build_deprecation_reason(field_definition.directives),
+            )
+            # Setting field arguments lazily after `define`. That makes
+            # detecting arguments when resolve_proc is created.
+            field.arguments = field_arguments
             [
               field_definition.name,
-              GraphQL::Field.define(
-                name: field_definition.name,
-                description: field_definition.description,
-                type: type_resolver.call(field_definition.type),
-                arguments: field_arguments,
-                deprecation_reason: build_deprecation_reason(field_definition.directives),
-              )
+              field
             ]
           end
         end
